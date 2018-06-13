@@ -23,8 +23,11 @@ public class Aplicacao {
                                 Float.parseFloat(dados[10]), dados[11]);
             v2000.add(item);
         }
-        System.out.println();
+    }
 
+    public static class ComparaTroca{
+        int comparaçao = 0;
+        int troca = 0;
     }
 
     public static  class Item {
