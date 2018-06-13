@@ -1,5 +1,29 @@
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 public class Aplicacao {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
+
+        BufferedReader file = new BufferedReader(new FileReader("dados_airbnb.txt"));
+
+        List<Item> v2000 = new ArrayList<Item>();
+
+        file.readLine();
+
+        for(int i = 0; i<2000; i++) {
+            String leitor = file.readLine();
+            String[] dados = leitor.split("\t");
+            Item item = new Item(Integer.parseInt(dados[0]),Integer.parseInt(dados[1]),
+                                dados[2], dados[3], dados[4], dados[5], Integer.parseInt(dados[6]),
+                                Float.parseFloat(dados[7]), Integer.parseInt(dados[8]), Float.parseFloat(dados[9]),
+                                Float.parseFloat(dados[10]), dados[11]);
+            v2000.add(item);
+        }
+        System.out.println();
 
     }
 
@@ -91,8 +115,8 @@ public class Aplicacao {
         for (j = 0; j < n2; j++)
             A2[j] = v[meio + j + 1];
 
-        A1[i] = new Item (Integer.MAX_VALUE);
-        A2[j] = new Item (Integer.MAX_VALUE);
+        //A1[i] = new Item (Integer.MAX_VALUE);
+        //A2[j] = new Item (Integer.MAX_VALUE);
 
         i = 0; j = 0;
 
