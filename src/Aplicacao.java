@@ -5,23 +5,91 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Aplicacao {
+    static BufferedReader file;
+    static List<Item> v2000;
+    static List<Item> v4000;
+    static List<Item> v8000;
+    static List<Item> v16000;
+    static List<Item> v32000;
+    static List<Item> v64000;
+    static List<Item> v128000;
+
     public static void main(String[] args) throws IOException {
 
-        BufferedReader file = new BufferedReader(new FileReader("dados_airbnb.txt"));
+        file = new BufferedReader(new FileReader("dados_airbnb.txt"));
 
-        List<Item> v2000 = new ArrayList<Item>();
+        v2000 = new ArrayList<Item>();
+        v4000 = new ArrayList<Item>();
+        v8000 = new ArrayList<Item>();
+        v16000 = new ArrayList<Item>();
+        v32000 = new ArrayList<Item>();
+        v64000 = new ArrayList<Item>();
+        v128000 = new ArrayList<Item>();
 
         file.readLine();
 
+        montarVetores();
+    }
+    public static void montarVetores() throws IOException {
         for(int i = 0; i<2000; i++) {
-            String leitor = file.readLine();
-            String[] dados = leitor.split("\t");
-            Item item = new Item(Integer.parseInt(dados[0]),Integer.parseInt(dados[1]),
-                                dados[2], dados[3], dados[4], dados[5], Integer.parseInt(dados[6]),
-                                Float.parseFloat(dados[7]), Integer.parseInt(dados[8]), Float.parseFloat(dados[9]),
-                                Float.parseFloat(dados[10]), dados[11]);
-            v2000.add(item);
+            Item item = escreverDados();
+
+            v2000.add(item);v4000.add(item);
+            v8000.add(item);v16000.add(item);
+            v32000.add(item);v64000.add(item);v128000.add(item);
         }
+
+        for(int i = 0; i<2000; i++) {
+            Item item = escreverDados();
+
+            v4000.add(item);v8000.add(item);
+            v16000.add(item);v32000.add(item);
+            v64000.add(item);v128000.add(item);
+        }
+
+        for(int i = 0; i<4000; i++) {
+            Item item = escreverDados();
+
+            v8000.add(item);v16000.add(item);
+            v32000.add(item);v64000.add(item);v128000.add(item);
+        }
+
+        for(int i = 0; i<8000; i++) {
+            Item item = escreverDados();
+
+            v16000.add(item);v32000.add(item);
+            v64000.add(item);v128000.add(item);
+        }
+
+        for(int i = 0; i<16000; i++) {
+            Item item = escreverDados();
+
+            v32000.add(item);v64000.add(item);v128000.add(item);
+        }
+
+        for(int i = 0; i<32000; i++) {
+            Item item = escreverDados();
+
+            v64000.add(item);v128000.add(item);
+        }
+
+        for(int i = 0; i<64000; i++) {
+            Item item = escreverDados();
+
+            v128000.add(item);
+        }
+    }
+
+    public static Item escreverDados() throws IOException {
+        String leitor = file.readLine();
+        String[] dados = leitor.split("\t");
+
+        Item item = new Item(Integer.parseInt(dados[0]),Integer.parseInt(dados[1]),
+                dados[2], dados[3], dados[4], dados[5], Integer.parseInt(dados[6]),
+                Float.parseFloat(dados[7]), Integer.parseInt(dados[8]), Float.parseFloat(dados[9]),
+                Float.parseFloat(dados[10]), dados[11]);
+
+        return item;
     }
 
     public static class ComparaTroca{
