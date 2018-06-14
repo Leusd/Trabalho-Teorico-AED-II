@@ -52,7 +52,7 @@ public class Aplicacao {
                     if (ord == 0) bolha(dataset, dataset.length - 1);
                     if (ord == 1) selecao(dataset, dataset.length - 1);
                     if (ord == 2) insercao(dataset, dataset.length - 1);
-                    if (ord == 3) MergeSort(dataset,0, dataset.length);
+                    if (ord == 3) MergeSort(dataset,0, dataset.length - 1);
                     if (ord == 4) QuickSort(dataset,0, dataset.length - 1);
                     long stopTime = System.nanoTime();
                     result[k][i][0] = stopTime - startTime;
@@ -175,6 +175,10 @@ public class Aplicacao {
             this.price = price;
         }
 
+        public Item(int chave){
+            this.room_id = chave;
+        }
+
         public int chave() {
             return this.room_id;
         }
@@ -255,8 +259,8 @@ public class Aplicacao {
         for (j = 0; j < n2; j++)
             A2[j] = v[meio + j + 1];
 
-        //A1[i] = new Item (Integer.MAX_VALUE);
-        //A2[j] = new Item (Integer.MAX_VALUE);
+        A1[i] = new Item (Integer.MAX_VALUE);
+        A2[j] = new Item (Integer.MAX_VALUE);
 
         i = 0; j = 0;
 
