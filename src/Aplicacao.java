@@ -1,5 +1,4 @@
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -56,6 +55,7 @@ public class Aplicacao {
     }
 
         public static void bolha(Item v[], int n) {
+
             int i, j;
             Item temp;
             for (i = 1; i <= n - 1; i++) {
