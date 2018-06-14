@@ -1,6 +1,6 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,8 +13,11 @@ public class Aplicacao {
     static List<Item> v32000;
     static List<Item> v64000;
     static List<Item> v128000;
-
+    static List<Item[]> data;
     public static void main(String[] args) throws IOException {
+        Instant startGeral = Instant.now();
+
+        System.out.println("Lendo os dados...");
 
         file = new BufferedReader(new FileReader("dados_airbnb.txt"));
 
@@ -25,12 +28,64 @@ public class Aplicacao {
         v32000 = new ArrayList<Item>();
         v64000 = new ArrayList<Item>();
         v128000 = new ArrayList<Item>();
-
+        data = new ArrayList<Item[]>();
         file.readLine();
-
         montarVetores();
 
-       // bolha(v2000, 2000);
+        data.add(v2000.toArray(new Item[v2000.size()]));
+        data.add(v4000.toArray(new Item[v4000.size()]));
+        data.add(v8000.toArray(new Item[v8000.size()]));
+        data.add(v16000.toArray(new Item[v16000.size()]));
+        data.add(v32000.toArray(new Item[v32000.size()]));
+        data.add(v64000.toArray(new Item[v64000.size()]));
+
+        long[][][] result = new long[6][6][2];
+        String[] fileNames={"bolha.csv","selecao.csv","insercao.csv","merge.csv","quick.csv"};
+        int k=0;
+        System.out.println("Executando as ordenacoes...");
+        for (int ord = 0;ord<5;ord++) {
+            System.out.println("Ordenando e gerando o arquivo "+fileNames[ord]);
+            k=0;
+            for (Item[] dataset : data) {
+                for (int i = 0; i < 6; i++) {
+                    long startTime = System.nanoTime();
+                    if (ord == 0) bolha(dataset, dataset.length - 1);
+                    if (ord == 1) selecao(dataset, dataset.length - 1);
+                    if (ord == 2) insercao(dataset, dataset.length - 1);
+                    if (ord == 3) MergeSort(dataset,0, dataset.length);
+                    if (ord == 4) QuickSort(dataset,0, dataset.length - 1);
+                    long stopTime = System.nanoTime();
+                    result[k][i][0] = stopTime - startTime;
+                    if (k == 0) result[k][i][1] = 2000;
+                    if (k == 1) result[k][i][1] = 4000;
+                    if (k == 2) result[k][i][1] = 8000;
+                    if (k == 3) result[k][i][1] = 16000;
+                    if (k == 4) result[k][i][1] = 32000;
+                    if (k == 5) result[k][i][1] = 64000;
+                }
+                k++;
+            }
+            writeTofile(fileNames[ord], result);
+            System.out.println(fileNames[ord]+" criado com sucesso!");
+        }
+        Instant endGeral = Instant.now();
+        System.out.print("Tempo geral de execucao: ");
+        System.out.println(Duration.between(startGeral, endGeral));
+        System.out.println("FIM");
+    }
+    public static void writeTofile (String filename, long[][][]x) throws IOException{
+        BufferedWriter outputWriter = null;
+        outputWriter = new BufferedWriter(new FileWriter(filename));
+        outputWriter.write("Amostra,Tempo(nS)");
+        outputWriter.newLine();
+        for (long[][] resultado : x) {
+            for (long[] amostra : resultado) {
+                outputWriter.write(amostra[1] + "," + amostra[0]);
+                outputWriter.newLine();
+            }
+        }
+        outputWriter.flush();
+        outputWriter.close();
     }
     public static void montarVetores() throws IOException {
         for(int i = 0; i<2000; i++) {
@@ -125,58 +180,58 @@ public class Aplicacao {
         }
     }
 
-        public static void bolha(Item v[], int n) {
-            ComparaTroca c = new ComparaTroca();
-            int i, j;
-            Item temp;
-            for (i = 1; i <= n - 1; i++) {
-                c.comparaçao++;
-                for (j = 1; j <= (n - i); j++) {
-                    if (v[j].chave() > v[j + 1].chave()) {
-                        c.comparaçao++;
-                        c.troca++;
-                        temp = v[j];
-                        v[j] = v[j + 1];
-                        v[j + 1] = temp;
-                    }
+    public static void bolha(Item v[], int n) {
+        ComparaTroca c = new ComparaTroca();
+        int i, j;
+        Item temp;
+        for (i = 1; i <= n - 1; i++) {
+            c.comparaçao++;
+            for (j = 1; j <= (n - i); j++) {
+                if (v[j].chave() > v[j + 1].chave()) {
+                    c.comparaçao++;
+                    c.troca++;
+                    temp = v[j];
+                    v[j] = v[j + 1];
+                    v[j + 1] = temp;
                 }
             }
         }
+    }
 
-        public static void selecao(Item v[], int n) {
-            ComparaTroca c = new ComparaTroca();
-            for (int i = 1; i <= n - 1; i++) {
-                c.comparaçao++;
-                int min = i;
-                for (int j = i + 1; j <= n; j++)
-                    if (v[j].chave() < v[min].chave()){
-                        min = j;
-                        c.troca++;
-                    }
-                c.comparaçao++;
-                Item x = v[min];
-                v[min] = v[i];
-                v[i] = x;
-            }
-        }
-
-        public static void insercao(Item v[], int n) {
-            int j;
-            ComparaTroca c = new ComparaTroca();
-            for (int i = 2; i <= n; i++) {
-                Item x = v[i];
-                j = i - 1;
-                v[0] = x;
-                c.comparaçao++;
-                while (x.chave() < v[j].chave()) {
-                    v[j + 1] = v[j];
-                    j--;
+    public static void selecao(Item v[], int n) {
+        ComparaTroca c = new ComparaTroca();
+        for (int i = 1; i <= n - 1; i++) {
+            c.comparaçao++;
+            int min = i;
+            for (int j = i + 1; j <= n; j++)
+                if (v[j].chave() < v[min].chave()){
+                    min = j;
                     c.troca++;
                 }
-                v[j + 1] = x;
-                c.comparaçao++;
-            }
+            c.comparaçao++;
+            Item x = v[min];
+            v[min] = v[i];
+            v[i] = x;
         }
+    }
+
+    public static void insercao(Item v[], int n) {
+        int j;
+        ComparaTroca c = new ComparaTroca();
+        for (int i = 2; i <= n; i++) {
+            Item x = v[i];
+            j = i - 1;
+            v[0] = x;
+            c.comparaçao++;
+            while (x.chave() < v[j].chave()) {
+                v[j + 1] = v[j];
+                j--;
+                c.troca++;
+            }
+            v[j + 1] = x;
+            c.comparaçao++;
+        }
+    }
 
     public static void MergeSort(Item v[], int inicio, int fim) {
         if (inicio < fim) {
@@ -234,9 +289,9 @@ public class Aplicacao {
         }
 
         if(j > esquerda)
-          QuickSort(v, esquerda, j);
+            QuickSort(v, esquerda, j);
 
         if(i < direita)
-          QuickSort(v, i, direita);
+            QuickSort(v, i, direita);
     }
 }
