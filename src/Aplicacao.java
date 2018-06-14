@@ -29,6 +29,8 @@ public class Aplicacao {
         file.readLine();
 
         montarVetores();
+
+       // bolha(v2000, 2000);
     }
     public static void montarVetores() throws IOException {
         for(int i = 0; i<2000; i++) {
@@ -95,6 +97,7 @@ public class Aplicacao {
     public static class ComparaTroca{
         int comparaçao = 0;
         int troca = 0;
+
     }
 
     public static  class Item {
@@ -123,12 +126,15 @@ public class Aplicacao {
     }
 
         public static void bolha(Item v[], int n) {
-
+            ComparaTroca c = new ComparaTroca();
             int i, j;
             Item temp;
             for (i = 1; i <= n - 1; i++) {
+                c.comparaçao++;
                 for (j = 1; j <= (n - i); j++) {
                     if (v[j].chave() > v[j + 1].chave()) {
+                        c.comparaçao++;
+                        c.troca++;
                         temp = v[j];
                         v[j] = v[j + 1];
                         v[j + 1] = temp;
@@ -138,11 +144,16 @@ public class Aplicacao {
         }
 
         public static void selecao(Item v[], int n) {
+            ComparaTroca c = new ComparaTroca();
             for (int i = 1; i <= n - 1; i++) {
+                c.comparaçao++;
                 int min = i;
                 for (int j = i + 1; j <= n; j++)
-                    if (v[j].chave() < v[min].chave())
+                    if (v[j].chave() < v[min].chave()){
                         min = j;
+                        c.troca++;
+                    }
+                c.comparaçao++;
                 Item x = v[min];
                 v[min] = v[i];
                 v[i] = x;
@@ -151,16 +162,19 @@ public class Aplicacao {
 
         public static void insercao(Item v[], int n) {
             int j;
+            ComparaTroca c = new ComparaTroca();
             for (int i = 2; i <= n; i++) {
                 Item x = v[i];
                 j = i - 1;
                 v[0] = x;
-
+                c.comparaçao++;
                 while (x.chave() < v[j].chave()) {
                     v[j + 1] = v[j];
                     j--;
+                    c.troca++;
                 }
                 v[j + 1] = x;
+                c.comparaçao++;
             }
         }
 
