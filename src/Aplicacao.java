@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Aplicacao {
+    static ComparaTroca c;
     static BufferedReader file;
     static List<Item> v2000;
     static List<Item> v4000;
@@ -14,9 +15,11 @@ public class Aplicacao {
     static List<Item> v64000;
     static List<Item> v128000;
     static List<Item[]> data;
+    static  List <ComparaTroca> result;
     public static void main(String[] args) throws IOException {
         Instant startGeral = Instant.now();
 
+        /*
         System.out.println("Lendo os dados...");
 
         file = new BufferedReader(new FileReader("dados_airbnb.txt"));
@@ -72,6 +75,95 @@ public class Aplicacao {
         System.out.print("Tempo geral de execucao: ");
         System.out.println(Duration.between(startGeral, endGeral));
         System.out.println("FIM");
+        */
+
+        teste();
+    }
+    public static  void teste(){
+        result = new ArrayList<ComparaTroca>();
+        Item []vetor1 = new Item[6];
+        Item []vetor2 = new Item[6];
+        Item []vetor3 = new Item[6];
+        Item []vetor4 = new Item[6];
+        Item []vetor5 = new Item[6];
+
+
+
+        Item item1 = new Item(4);
+        Item item2 = new Item(2);
+        Item item3 = new Item(3);
+        Item item4 = new Item(5);
+        Item item5 = new Item(1);
+
+        vetor1[1]= item1;
+        vetor1[2]= item2;
+        vetor1[3]= item3;
+        vetor1[4]= item4;
+        vetor1[5]= item5;
+
+        vetor2[1]= item1;
+        vetor2[2]= item2;
+        vetor2[3]= item3;
+        vetor2[4]= item4;
+        vetor2[5]= item5;
+
+        vetor3[1]= item1;
+        vetor3[2]= item2;
+        vetor3[3]= item3;
+        vetor3[4]= item4;
+        vetor3[5]= item5;
+
+        vetor4[1]= item1;
+        vetor4[2]= item2;
+        vetor4[3]= item3;
+        vetor4[4]= item4;
+        vetor4[5]= item5;
+
+        vetor5[1]= item1;
+        vetor5[2]= item2;
+        vetor5[3]= item3;
+        vetor5[4]= item4;
+        vetor5[5]= item5;
+
+
+        System.out.println("Bolha");
+        imprimir(vetor1);
+        bolha(vetor1,5);
+        imprimir(vetor1);
+
+        System.out.println("Seleção");
+        imprimir(vetor2);
+        selecao(vetor2,5);
+        imprimir(vetor2);
+
+        System.out.println("Inserção");
+        imprimir(vetor3);
+        insercao(vetor3,5);
+        imprimir(vetor3);
+
+        System.out.println("Merge");
+        imprimir(vetor4);
+        MergeSort( vetor4, 1, vetor4.length-1);
+        imprimir(vetor4);
+
+        System.out.println("Quick");
+        imprimir(vetor5);
+        QuickSort(vetor5, 1, vetor4.length-1);
+        imprimir(vetor5);
+
+
+        imprimirResult(result);
+    }
+    public static void imprimir(Item [] vetor) {
+        for (int i = 1; i < vetor.length; i++) {
+            System.out.println(vetor[i].room_id);
+        }
+        System.out.println("<--------------------------------------------->");
+    }
+    public static void imprimirResult(List<ComparaTroca> list) {
+       for (int i=0; i<list.size(); i++){
+           System.out.println("Array " + list.get(i).tamanhoArray + "\nMétodo " + list.get(i).tipoOrdenacao + "\nComparações:" + list.get(i).comparaçao + "\nTrocas:" + list.get(i).troca + "\n-------------\n");
+       }
     }
     public static void writeTofile (String filename, long[][][]x) throws IOException{
         BufferedWriter outputWriter = null;
@@ -152,6 +244,8 @@ public class Aplicacao {
     public static class ComparaTroca{
         int comparaçao = 0;
         int troca = 0;
+        String tipoOrdenacao;
+        int tamanhoArray;
 
     }
 
@@ -175,8 +269,8 @@ public class Aplicacao {
             this.price = price;
         }
 
-        public Item(int chave){
-            this.room_id = chave;
+        public Item(int room_id){
+            this.room_id = room_id;
         }
 
         public int chave() {
@@ -185,9 +279,11 @@ public class Aplicacao {
     }
 
     public static void bolha(Item v[], int n) {
-        ComparaTroca c = new ComparaTroca();
+        c = new ComparaTroca();
         int i, j;
         Item temp;
+        c.tipoOrdenacao= "bolha";
+        c.tamanhoArray = v.length;
         for (i = 1; i <= n - 1; i++) {
             c.comparaçao++;
             for (j = 1; j <= (n - i); j++) {
@@ -200,10 +296,13 @@ public class Aplicacao {
                 }
             }
         }
+        result.add(c);
     }
 
     public static void selecao(Item v[], int n) {
-        ComparaTroca c = new ComparaTroca();
+        c = new ComparaTroca();
+        c.tipoOrdenacao= "Seleção";
+        c.tamanhoArray = v.length;
         for (int i = 1; i <= n - 1; i++) {
             c.comparaçao++;
             int min = i;
@@ -217,11 +316,14 @@ public class Aplicacao {
             v[min] = v[i];
             v[i] = x;
         }
+        result.add(c);
     }
 
     public static void insercao(Item v[], int n) {
         int j;
-        ComparaTroca c = new ComparaTroca();
+        c = new ComparaTroca();
+        c.tipoOrdenacao= "Inserção";
+        c.tamanhoArray = v.length;
         for (int i = 2; i <= n; i++) {
             Item x = v[i];
             j = i - 1;
@@ -235,18 +337,24 @@ public class Aplicacao {
             v[j + 1] = x;
             c.comparaçao++;
         }
+        result.add(c);
     }
 
     public static void MergeSort(Item v[], int inicio, int fim) {
+        c = new ComparaTroca();
+        c.tamanhoArray= v.length;
+        c.tipoOrdenacao= "Merge";
         if (inicio < fim) {
             int meio = (inicio + fim) / 2;
             MergeSort(v, inicio, meio);
             MergeSort(v, meio + 1, fim);
             merge(v, inicio, meio, fim);
         }
+        result.add(c);
     }
 
     private static void merge(Item v[], int inicio, int meio, int fim) {
+        c.comparaçao++;
         int n1, n2, i, j, k;
         n1 = meio - inicio + 1;
         n2 = fim - meio;
@@ -265,14 +373,22 @@ public class Aplicacao {
         i = 0; j = 0;
 
         for (k = inicio; k <= fim; k++) {
-            if (A1[i].chave() <= A2[j].chave())
+            if (A1[i].chave() <= A2[j].chave()){
                 v[k] = A1[i++];
-            else
+                c.troca++;
+            }
+            else{
+                c.troca++;
                 v[k] = A2[j++];
+            }
+
         }
     }
 
     public static void QuickSort(Item v[], int esquerda, int direita) {
+        c = new ComparaTroca();
+        c.tamanhoArray= v.length;
+        c.tipoOrdenacao= "Quick";
         Item temp, pivo;
         int i, j;
         i = esquerda;
@@ -280,10 +396,18 @@ public class Aplicacao {
         pivo = v[(esquerda + direita) / 2];
 
         while(i <= j) {
-            while(v[i].chave() < pivo.chave() && i < direita) i++;
-            while(v[j].chave() > pivo.chave() && j > esquerda) j--;
+             c.comparaçao++;
+            while(v[i].chave() < pivo.chave() && i < direita) {
+                c.comparaçao++;
+                i++;
+            }
+            while(v[j].chave() > pivo.chave() && j > esquerda) {
+                c.comparaçao++;
+                j--;
+            }
 
             if(i <= j) {
+                c.troca++;
                 temp = v[i];
                 v[i] = v[j];
                 v[j] = temp;
@@ -292,10 +416,18 @@ public class Aplicacao {
             }
         }
 
-        if(j > esquerda)
+        if(j > esquerda){
             QuickSort(v, esquerda, j);
+            c.comparaçao++;
+        }
 
-        if(i < direita)
+        if(i < direita){
             QuickSort(v, i, direita);
+            c.comparaçao++;
+        }
+
+        result.add(c);
+
     }
+
 }
