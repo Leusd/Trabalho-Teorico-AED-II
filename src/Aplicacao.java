@@ -309,9 +309,6 @@ public class Aplicacao {
         private int room_id, host_id, reviews, accommodates;
         private String room_type, country, city, neighborhood, property_type;
         private float overall_satisfactio, bedrooms, price;
-        public Item(int roomId){
-            this.room_id=roomId;
-        }
         public Item(int room_id, int host_id, String room_type, String country, String city, String neighborhood, int reviews, float overall_satisfaction, int accommodates, float bedrooms, float price, String property_type){
             this.room_id = room_id;
             this.host_id = host_id;
