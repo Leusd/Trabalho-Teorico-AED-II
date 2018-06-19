@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.*;
 
 public class Aplicacao {
     static ComparaTroca c;
@@ -89,7 +90,7 @@ public class Aplicacao {
                     if (ord == 0) bolha(dataset, dataset.length - 1);
                     if (ord == 1) selecao(dataset, dataset.length - 1);
                     if (ord == 2) insercao(dataset, dataset.length - 1);
-                    if (ord == 3) MergeSort(dataset,0, dataset.length - 1);
+                    if (ord == 3) MergeLindao(dataset,0, dataset.length - 1);
                     if (ord == 4) QuickSort(dataset,0, dataset.length - 1);
                     long stopTime = System.nanoTime();
                     result[k][i][0] = stopTime - startTime;
@@ -199,7 +200,7 @@ public class Aplicacao {
 
         System.out.println("Merge");
         imprimir(vetor4);
-        MergeSort( vetor4, 1, vetor4.length-1);
+        MergeLindao( vetor4, 1, vetor4.length-1);
         imprimir(vetor4);
 
         System.out.println("Quick");
@@ -395,49 +396,83 @@ public class Aplicacao {
         result.add(c);
     }
 
-    public static void MergeSort(Item v[], int inicio, int fim) {
+    public static void MergeLindao(Item v[], int inicio, int fim) {
         c = new ComparaTroca();
         c.tamanhoArray= v.length;
         c.tipoOrdenacao= "Merge";
         if (inicio < fim) {
             int meio = (inicio + fim) / 2;
-            MergeSort(v, inicio, meio);
-            MergeSort(v, meio + 1, fim);
-            merge(v, inicio, meio, fim);
+            MergeLindao(v, inicio, meio);
+            MergeLindao(v, meio + 1, fim);
+           intercalaIsso(v, inicio, meio, fim);
         }
         result.add(c);
     }
 
-    private static void merge(Item v[], int inicio, int meio, int fim) {
+    private static void intercalaIsso(Item v[], int inicio, int meio, int fim) {
+
         c.comparaçao++;
-        int n1, n2, i, j, k;
-        n1 = meio - inicio + 1;
-        n2 = fim - meio;
-
-        Item A1[] = new Item[n1 + 1];
-        Item A2[] = new Item[n2 + 1];
-
-        for (i = 0; i < n1; i++)
-            A1[i] = v[inicio + i];
-        for (j = 0; j < n2; j++)
-            A2[j] = v[meio + j + 1];
-
-        A1[i] = new Item (Integer.MAX_VALUE);
-        A2[j] = new Item (Integer.MAX_VALUE);
-
-        i = 0; j = 0;
-
-        for (k = inicio; k <= fim; k++) {
-            if (A1[i].chave() <= A2[j].chave()){
-                v[k] = A1[i++];
+        int posicaoLivre, inicioDoVetor1,inicioDoVetor2,i;
+        Item aux[]=new Item[v.length];
+        inicioDoVetor1=inicio;
+        inicioDoVetor2=meio+1;
+        posicaoLivre=inicio;
+        while(inicioDoVetor1<=meio && inicioDoVetor2<=fim){
+            if(v[inicioDoVetor1].room_id<=v[inicioDoVetor2].room_id){
+                aux[posicaoLivre]=v[inicioDoVetor1];
+                inicioDoVetor1++;
+                c.troca++;
+            }else{
+                aux[posicaoLivre]=v[inicioDoVetor2];
+                inicioDoVetor2++;
                 c.troca++;
             }
-            else{
-                c.troca++;
-                v[k] = A2[j++];
-            }
+
+            posicaoLivre++;
+        }
+        for(i=inicioDoVetor1;i<=meio;i++){
+            aux[posicaoLivre]=v[i];
+            posicaoLivre++;
+        }
+
+        for(i=inicioDoVetor2;i<=fim;i++){
+            aux[posicaoLivre]=v[i];
+            posicaoLivre++;
 
         }
+
+        for(i=inicio;i<=fim;i++){
+            v[i]=aux[i];
+        }
+//        int n1, n2, i, j, k;
+//        n1 = meio - inicio + 1;
+//        n2 = fim - meio;
+//
+//        Item A1[] = new Item[n1 + 1];
+//        Item A2[] = new Item[n2 + 1];
+//
+//        for (i = 0; i < n1; i++)
+//            A1[i] = v[inicio + i];
+//        for (j = 0; j < n2; j++)
+//            A2[j] = v[meio + j + 1];
+//
+//        A1[i] = new Item (Integer.MAX_VALUE);
+//        A2[j] = new Item (Integer.MAX_VALUE);
+//
+//        i = 0; j = 0;
+//
+//        for (k = inicio; k <= fim; k++) {
+//            if (A1[i].chave() <= A2[j].chave()){
+//                v[k] = A1[i++];
+//                c.troca++;
+//            }
+//            else{
+//                c.troca++;
+//                v[k] = A2[j++];
+//            }
+//
+//        }
+
     }
 
     public static void QuickSort(Item v[], int esquerda, int direita) {
@@ -484,5 +519,7 @@ public class Aplicacao {
         result.add(c);
 
     }
+
+
 
 }
