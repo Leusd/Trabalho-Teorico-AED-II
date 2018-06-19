@@ -2,7 +2,9 @@ import java.io.*;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Aplicacao {
     static BufferedReader file;
@@ -31,7 +33,36 @@ public class Aplicacao {
         data = new ArrayList<Item[]>();
         file.readLine();
         montarVetores();
-
+        int forma=2;//0 para nao ordenar
+        //ordenando
+        switch (forma){
+            case 0:{
+                // Caso medio
+                break;
+            }
+            //ordena os dados
+            case 1:{
+                v2000= v2000.stream().sorted(Comparator.comparing(Item::chave)).collect(Collectors.toList());
+                v4000= v4000.stream().sorted(Comparator.comparing(Item::chave)).collect(Collectors.toList());
+                v8000= v8000.stream().sorted(Comparator.comparing(Item::chave)).collect(Collectors.toList());
+                v16000= v16000.stream().sorted(Comparator.comparing(Item::chave)).collect(Collectors.toList());
+                v32000= v32000.stream().sorted(Comparator.comparing(Item::chave)).collect(Collectors.toList());
+                v64000= v64000.stream().sorted(Comparator.comparing(Item::chave)).collect(Collectors.toList());
+                v128000= v128000.stream().sorted(Comparator.comparing(Item::chave)).collect(Collectors.toList());
+               break;
+            }
+            //ordena os dados de forma invertida
+            case 2:{
+                v2000= v2000.stream().sorted(Comparator.comparing(Item::chave).reversed()).collect(Collectors.toList());
+                v4000= v4000.stream().sorted(Comparator.comparing(Item::chave).reversed()).collect(Collectors.toList());
+                v8000= v8000.stream().sorted(Comparator.comparing(Item::chave).reversed()).collect(Collectors.toList());
+                v16000= v16000.stream().sorted(Comparator.comparing(Item::chave).reversed()).collect(Collectors.toList());
+                v32000= v32000.stream().sorted(Comparator.comparing(Item::chave).reversed()).collect(Collectors.toList());
+                v64000= v64000.stream().sorted(Comparator.comparing(Item::chave).reversed()).collect(Collectors.toList());
+                v128000= v128000.stream().sorted(Comparator.comparing(Item::chave).reversed()).collect(Collectors.toList());
+                break;
+            }
+        }
         data.add(v2000.toArray(new Item[v2000.size()]));
         data.add(v4000.toArray(new Item[v4000.size()]));
         data.add(v8000.toArray(new Item[v8000.size()]));
@@ -42,17 +73,21 @@ public class Aplicacao {
         long[][][] result = new long[6][6][2];
         String[] fileNames={"bolha.csv","selecao.csv","insercao.csv","merge.csv","quick.csv"};
         int k=0;
+        long max=0;
+        long min=0;
+        long[][][] resultFiltered = new long[6][4][2];
+        int i;
         System.out.println("Executando as ordenacoes...");
         for (int ord = 0;ord<5;ord++) {
             System.out.println("Ordenando e gerando o arquivo "+fileNames[ord]);
             k=0;
             for (Item[] dataset : data) {
-                for (int i = 0; i < 6; i++) {
+                for (i = 0; i < 6; i++) {
                     long startTime = System.nanoTime();
                     if (ord == 0) bolha(dataset, dataset.length - 1);
                     if (ord == 1) selecao(dataset, dataset.length - 1);
                     if (ord == 2) insercao(dataset, dataset.length - 1);
-                    if (ord == 3) MergeSort(dataset,0, dataset.length);
+                    if (ord == 3) MergeSort(dataset,0, dataset.length-1 );
                     if (ord == 4) QuickSort(dataset,0, dataset.length - 1);
                     long stopTime = System.nanoTime();
                     result[k][i][0] = stopTime - startTime;
@@ -65,7 +100,30 @@ public class Aplicacao {
                 }
                 k++;
             }
-            writeTofile(fileNames[ord], result);
+            //REMOVENDO O MAIOR E MENOR
+            k=0;
+            for (long[][] ele : result){
+                i=0;
+                min=ele[0][0];
+                max=ele[0][0];
+                for (long[] t: ele) {
+                    if (t[0]>max)max=t[0];
+                    if (t[0]<min)min=t[0];
+                }
+                for (long[] t: ele) {
+                    if (t[0]==max){
+                      //skip
+                    }else if (t[0]==min){
+                        //skip
+                    }else {
+                        resultFiltered[k][i][0]=t[0];
+                        resultFiltered[k][i][1]=t[1];
+                        i++;
+                    }
+                }
+                k++;
+            }
+            writeTofile(fileNames[ord], resultFiltered);
             System.out.println(fileNames[ord]+" criado com sucesso!");
         }
         Instant endGeral = Instant.now();
@@ -159,7 +217,9 @@ public class Aplicacao {
         private int room_id, host_id, reviews, accommodates;
         private String room_type, country, city, neighborhood, property_type;
         private float overall_satisfactio, bedrooms, price;
-
+        public Item(int roomId){
+            this.room_id=roomId;
+        }
         public Item(int room_id, int host_id, String room_type, String country, String city, String neighborhood, int reviews, float overall_satisfaction, int accommodates, float bedrooms, float price, String property_type){
             this.room_id = room_id;
             this.host_id = host_id;
@@ -255,8 +315,8 @@ public class Aplicacao {
         for (j = 0; j < n2; j++)
             A2[j] = v[meio + j + 1];
 
-        //A1[i] = new Item (Integer.MAX_VALUE);
-        //A2[j] = new Item (Integer.MAX_VALUE);
+        A1[i] = new Item (Integer.MAX_VALUE);
+        A2[j] = new Item (Integer.MAX_VALUE);
 
         i = 0; j = 0;
 
