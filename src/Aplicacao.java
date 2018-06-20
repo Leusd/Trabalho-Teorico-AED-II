@@ -2,9 +2,13 @@ import java.io.*;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Aplicacao {
+
+    static ComparaTroca c;
     static BufferedReader file;
     static List<Item> v2000;
     static List<Item> v4000;
@@ -14,6 +18,8 @@ public class Aplicacao {
     static List<Item> v64000;
     static List<Item> v128000;
     static List<Item[]> data;
+    static  List <ComparaTroca> result;
+
     public static void main(String[] args) throws IOException {
         Instant startGeral = Instant.now();
 
@@ -31,29 +37,66 @@ public class Aplicacao {
         data = new ArrayList<Item[]>();
         file.readLine();
         montarVetores();
-
+        int forma=1;//0 para nao ordenar
+        //ordenando
+        switch (forma){
+            case 0:{
+                // Caso medio
+                break;
+            }
+            //ordena os dados
+            case 1:{
+                v2000= v2000.stream().sorted(Comparator.comparing(Item::chave)).collect(Collectors.toList());
+                v4000= v4000.stream().sorted(Comparator.comparing(Item::chave)).collect(Collectors.toList());
+                v8000= v8000.stream().sorted(Comparator.comparing(Item::chave)).collect(Collectors.toList());
+                v16000= v16000.stream().sorted(Comparator.comparing(Item::chave)).collect(Collectors.toList());
+                v32000= v32000.stream().sorted(Comparator.comparing(Item::chave)).collect(Collectors.toList());
+                v64000= v64000.stream().sorted(Comparator.comparing(Item::chave)).collect(Collectors.toList());
+                v128000= v128000.stream().sorted(Comparator.comparing(Item::chave)).collect(Collectors.toList());
+               break;
+            }
+            //ordena os dados de forma invertida
+            case 2:{
+                v2000= v2000.stream().sorted(Comparator.comparing(Item::chave).reversed()).collect(Collectors.toList());
+                v4000= v4000.stream().sorted(Comparator.comparing(Item::chave).reversed()).collect(Collectors.toList());
+                v8000= v8000.stream().sorted(Comparator.comparing(Item::chave).reversed()).collect(Collectors.toList());
+                v16000= v16000.stream().sorted(Comparator.comparing(Item::chave).reversed()).collect(Collectors.toList());
+                v32000= v32000.stream().sorted(Comparator.comparing(Item::chave).reversed()).collect(Collectors.toList());
+                v64000= v64000.stream().sorted(Comparator.comparing(Item::chave).reversed()).collect(Collectors.toList());
+                v128000= v128000.stream().sorted(Comparator.comparing(Item::chave).reversed()).collect(Collectors.toList());
+                break;
+            }
+        }
         data.add(v2000.toArray(new Item[v2000.size()]));
         data.add(v4000.toArray(new Item[v4000.size()]));
         data.add(v8000.toArray(new Item[v8000.size()]));
         data.add(v16000.toArray(new Item[v16000.size()]));
         data.add(v32000.toArray(new Item[v32000.size()]));
         data.add(v64000.toArray(new Item[v64000.size()]));
+        data.add(v128000.toArray(new Item[v128000.size()]));
 
-        long[][][] result = new long[6][6][2];
-        String[] fileNames={"bolha.csv","selecao.csv","insercao.csv","merge.csv","quick.csv"};
+        long[][][] result = new long[7][6][2];
+        String[] fileNames={"bolha.csv","selecao.csv","insercao.csv","merge.csv","quick.csv","mergeLindao.csv"};
         int k=0;
+        long max=0;
+        long min=0;
+        long[][][] resultFiltered = new long[7][4][2];
+        long[][][] resultFinal = new long[7][1][2];
+        int i;
+        long soma=0;
         System.out.println("Executando as ordenacoes...");
-        for (int ord = 0;ord<5;ord++) {
+        for (int ord = 0;ord<6;ord++) {
             System.out.println("Ordenando e gerando o arquivo "+fileNames[ord]);
             k=0;
             for (Item[] dataset : data) {
-                for (int i = 0; i < 6; i++) {
+                for (i = 0; i < 6; i++) {
                     long startTime = System.nanoTime();
                     if (ord == 0) bolha(dataset, dataset.length - 1);
                     if (ord == 1) selecao(dataset, dataset.length - 1);
                     if (ord == 2) insercao(dataset, dataset.length - 1);
-                    if (ord == 3) MergeSort(dataset,0, dataset.length);
+                    if (ord == 3) MergeSort(dataset,0, dataset.length - 1);
                     if (ord == 4) QuickSort(dataset,0, dataset.length - 1);
+                    //if (ord == 5) MergeLindao(dataset,0, dataset.length - 1);
                     long stopTime = System.nanoTime();
                     result[k][i][0] = stopTime - startTime;
                     if (k == 0) result[k][i][1] = 2000;
@@ -62,10 +105,44 @@ public class Aplicacao {
                     if (k == 3) result[k][i][1] = 16000;
                     if (k == 4) result[k][i][1] = 32000;
                     if (k == 5) result[k][i][1] = 64000;
+                    if (k == 6) result[k][i][1] = 128000;
                 }
                 k++;
             }
-            writeTofile(fileNames[ord], result);
+            //REMOVENDO O MAIOR E MENOR
+            k=0;
+            for (long[][] ele : result){
+                i=0;
+                min=ele[0][0];
+                max=ele[0][0];
+                for (long[] t: ele) {
+                    if (t[0]>max)max=t[0];
+                    if (t[0]<min)min=t[0];
+                }
+                for (long[] t: ele) {
+                    if (t[0]==max){
+                      //skip
+                    }else if (t[0]==min){
+                        //skip
+                    }else {
+                        resultFiltered[k][i][0]=t[0];
+                        resultFiltered[k][i][1]=t[1];
+                        i++;
+                    }
+                }
+                soma=0;
+                for (long[] item:resultFiltered[k]) {
+                    soma+=item[0];
+
+                    if(i>=3){
+                        resultFinal[k][0][0]=soma/4;
+                        resultFinal[k][0][1]=resultFiltered[k][0][1];
+                    }
+                }
+                k++;
+            }
+
+            writeTofile(fileNames[ord], resultFinal);
             System.out.println(fileNames[ord]+" criado com sucesso!");
         }
         Instant endGeral = Instant.now();
@@ -73,6 +150,7 @@ public class Aplicacao {
         System.out.println(Duration.between(startGeral, endGeral));
         System.out.println("FIM");
     }
+
     public static void writeTofile (String filename, long[][][]x) throws IOException{
         BufferedWriter outputWriter = null;
         outputWriter = new BufferedWriter(new FileWriter(filename));
@@ -87,10 +165,10 @@ public class Aplicacao {
         outputWriter.flush();
         outputWriter.close();
     }
+
     public static void montarVetores() throws IOException {
         for(int i = 0; i<2000; i++) {
             Item item = escreverDados();
-
             v2000.add(item);v4000.add(item);
             v8000.add(item);v16000.add(item);
             v32000.add(item);v64000.add(item);v128000.add(item);
@@ -132,7 +210,6 @@ public class Aplicacao {
 
         for(int i = 0; i<64000; i++) {
             Item item = escreverDados();
-
             v128000.add(item);
         }
     }
@@ -152,6 +229,8 @@ public class Aplicacao {
     public static class ComparaTroca{
         int comparaçao = 0;
         int troca = 0;
+        String tipoOrdenacao;
+        int tamanhoArray;
 
     }
 
@@ -159,7 +238,6 @@ public class Aplicacao {
         private int room_id, host_id, reviews, accommodates;
         private String room_type, country, city, neighborhood, property_type;
         private float overall_satisfactio, bedrooms, price;
-
         public Item(int room_id, int host_id, String room_type, String country, String city, String neighborhood, int reviews, float overall_satisfaction, int accommodates, float bedrooms, float price, String property_type){
             this.room_id = room_id;
             this.host_id = host_id;
@@ -175,15 +253,21 @@ public class Aplicacao {
             this.price = price;
         }
 
+        public Item(int room_id){
+            this.room_id = room_id;
+        }
+
         public int chave() {
             return this.room_id;
         }
     }
 
     public static void bolha(Item v[], int n) {
-        ComparaTroca c = new ComparaTroca();
+        c = new ComparaTroca();
         int i, j;
         Item temp;
+        c.tipoOrdenacao= "bolha";
+        c.tamanhoArray = v.length;
         for (i = 1; i <= n - 1; i++) {
             c.comparaçao++;
             for (j = 1; j <= (n - i); j++) {
@@ -199,7 +283,9 @@ public class Aplicacao {
     }
 
     public static void selecao(Item v[], int n) {
-        ComparaTroca c = new ComparaTroca();
+        c = new ComparaTroca();
+        c.tipoOrdenacao= "Seleção";
+        c.tamanhoArray = v.length;
         for (int i = 1; i <= n - 1; i++) {
             c.comparaçao++;
             int min = i;
@@ -217,7 +303,9 @@ public class Aplicacao {
 
     public static void insercao(Item v[], int n) {
         int j;
-        ComparaTroca c = new ComparaTroca();
+        c = new ComparaTroca();
+        c.tipoOrdenacao= "Inserção";
+        c.tamanhoArray = v.length;
         for (int i = 2; i <= n; i++) {
             Item x = v[i];
             j = i - 1;
@@ -234,6 +322,9 @@ public class Aplicacao {
     }
 
     public static void MergeSort(Item v[], int inicio, int fim) {
+        c = new ComparaTroca();
+        c.tamanhoArray= v.length;
+        c.tipoOrdenacao= "Merge";
         if (inicio < fim) {
             int meio = (inicio + fim) / 2;
             MergeSort(v, inicio, meio);
@@ -243,6 +334,7 @@ public class Aplicacao {
     }
 
     private static void merge(Item v[], int inicio, int meio, int fim) {
+        c.comparaçao++;
         int n1, n2, i, j, k;
         n1 = meio - inicio + 1;
         n2 = fim - meio;
@@ -255,20 +347,28 @@ public class Aplicacao {
         for (j = 0; j < n2; j++)
             A2[j] = v[meio + j + 1];
 
-        //A1[i] = new Item (Integer.MAX_VALUE);
-        //A2[j] = new Item (Integer.MAX_VALUE);
+        A1[i] = new Item (Integer.MAX_VALUE);
+        A2[j] = new Item (Integer.MAX_VALUE);
 
         i = 0; j = 0;
 
         for (k = inicio; k <= fim; k++) {
-            if (A1[i].chave() <= A2[j].chave())
+            if (A1[i].chave() <= A2[j].chave()){
                 v[k] = A1[i++];
-            else
+                c.troca++;
+            }
+            else{
+                c.troca++;
                 v[k] = A2[j++];
+            }
+
         }
     }
 
     public static void QuickSort(Item v[], int esquerda, int direita) {
+        c = new ComparaTroca();
+        c.tamanhoArray= v.length;
+        c.tipoOrdenacao= "Quick";
         Item temp, pivo;
         int i, j;
         i = esquerda;
@@ -276,10 +376,18 @@ public class Aplicacao {
         pivo = v[(esquerda + direita) / 2];
 
         while(i <= j) {
-            while(v[i].chave() < pivo.chave() && i < direita) i++;
-            while(v[j].chave() > pivo.chave() && j > esquerda) j--;
+             c.comparaçao++;
+            while(v[i].chave() < pivo.chave() && i < direita) {
+                c.comparaçao++;
+                i++;
+            }
+            while(v[j].chave() > pivo.chave() && j > esquerda) {
+                c.comparaçao++;
+                j--;
+            }
 
             if(i <= j) {
+                c.troca++;
                 temp = v[i];
                 v[i] = v[j];
                 v[j] = temp;
@@ -288,10 +396,65 @@ public class Aplicacao {
             }
         }
 
-        if(j > esquerda)
+        if(j > esquerda){
             QuickSort(v, esquerda, j);
+            c.comparaçao++;
+        }
 
-        if(i < direita)
+        if(i < direita){
             QuickSort(v, i, direita);
+            c.comparaçao++;
+        }
     }
+
+    public static void MergeLindao(Item v[], int inicio, int fim) {
+        c = new ComparaTroca();
+        c.tamanhoArray= v.length;
+        c.tipoOrdenacao= "Merge";
+        if (inicio < fim) {
+            int meio = (inicio + fim) / 2;
+            MergeLindao(v, inicio, meio);
+            MergeLindao(v, meio + 1, fim);
+            intercalaIsso(v, inicio, meio, fim);
+        }
+        result.add(c);
+    }
+
+    private static void intercalaIsso(Item v[], int inicio, int meio, int fim) {
+
+        c.comparaçao++;
+        int posicaoLivre, inicioDoVetor1,inicioDoVetor2,i;
+        Item aux[]=new Item[v.length];
+        inicioDoVetor1=inicio;
+        inicioDoVetor2=meio+1;
+        posicaoLivre=inicio;
+        while(inicioDoVetor1<=meio && inicioDoVetor2<=fim){
+            if(v[inicioDoVetor1].room_id<=v[inicioDoVetor2].room_id){
+                aux[posicaoLivre]=v[inicioDoVetor1];
+                inicioDoVetor1++;
+                c.troca++;
+            }else{
+                aux[posicaoLivre]=v[inicioDoVetor2];
+                inicioDoVetor2++;
+                c.troca++;
+            }
+
+            posicaoLivre++;
+        }
+        for(i=inicioDoVetor1;i<=meio;i++){
+            aux[posicaoLivre]=v[i];
+            posicaoLivre++;
+        }
+
+        for(i=inicioDoVetor2;i<=fim;i++){
+            aux[posicaoLivre]=v[i];
+            posicaoLivre++;
+
+        }
+
+        for(i=inicio;i<=fim;i++){
+            v[i]=aux[i];
+        }
+    }
+
 }
