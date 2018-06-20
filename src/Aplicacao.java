@@ -37,7 +37,7 @@ public class Aplicacao {
         data = new ArrayList<Item[]>();
         file.readLine();
         montarVetores();
-        int forma=1;//0 para nao ordenar
+        int forma=2;//0 para nao ordenar
         //ordenando
         switch (forma){
             case 0:{
@@ -96,7 +96,7 @@ public class Aplicacao {
                     if (ord == 2) insercao(dataset, dataset.length - 1);
                     if (ord == 3) MergeSort(dataset,0, dataset.length - 1);
                     if (ord == 4) QuickSort(dataset,0, dataset.length - 1);
-                    //if (ord == 5) MergeLindao(dataset,0, dataset.length - 1);
+                    if (ord == 5) MergeLindao(dataset,0, dataset.length - 1);
                     long stopTime = System.nanoTime();
                     result[k][i][0] = stopTime - startTime;
                     if (k == 0) result[k][i][1] = 2000;
@@ -417,7 +417,6 @@ public class Aplicacao {
             MergeLindao(v, meio + 1, fim);
             intercalaIsso(v, inicio, meio, fim);
         }
-        result.add(c);
     }
 
     private static void intercalaIsso(Item v[], int inicio, int meio, int fim) {
